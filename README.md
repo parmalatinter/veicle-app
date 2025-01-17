@@ -105,28 +105,82 @@ docker-compose exec backend yarn add <package-name>
 
     - MongoDB のデータは`mongodb_data`ボリュームに永続化されます
     - データベースの初期化が必要な場合は`docker-compose down -v`を実行してボリュームを削除してください
-    - MongoDB はレプリカセットモードで実行され、トランザクションをサポートしています
-    - トランザクションの使用例：
+    - MongoDB はレプリカセットモードで実行され、以下の設定が含まれています：
+        - 認証（ユーザー名: root, パスワード: example）
+        - メモリ制限（開発環境用に 0.25GB）
+        - トランザクションのサポート
+    - 初期ユーザーアカウント：
 
-    ```typescript
-    // Nest.jsでのトランザクション使用例
-    async function example() {
-      const session = await this.connection.startSession();
-      session.startTransaction();
-      try {
-        // トランザクション内での操作
-        await this.model.create([{ ... }], { session });
-        await this.otherModel.updateOne({ ... }, { session });
+        ```
+        管理者アカウント:
+          メールアドレス: admin@example.com
+          パスワード: password123
+          権限: 管理者権限
 
-        await session.commitTransaction();
-      } catch (error) {
-        await session.abortTransaction();
-        throw error;
-      } finally {
-        session.endSession();
-      }
-    }
+        一般ユーザーアカウント:
+          メールアドレス: user@example.com
+          パスワード: password123
+          権限: 一般ユーザー権限
+        ```
+
+    - ⚠️ 注意: 本番環境では、必ずこれらの初期パスワードを変更してください
+
+    ## 環境設定
+
+    ### MongoDB 設定
+
+    開発環境では以下の設定が適用されています：
+
+    ```yaml
+    - レプリカセット名: rs0
+    - メモリキャッシュ: 0.25GB
+    - 認証: 有効
+    - トランザクションタイムアウト: 5000ms
     ```
+
+    本番環境では以下の点に注意してください：
+
+    - メモリ設定の調整
+
+        ```yaml
+        --wiredTigerCacheSizeGB: サーバーのメモリに応じて調整（推奨: 全メモリの50%）
+        ```
+
+    - セキュリティ設定
+
+        - 強力なパスワードの使用
+        - 環境変数での認証情報管理
+        - ネットワークアクセス制限
+
+    - パフォーマンス設定
+        ```yaml
+        maxTransactionLockRequestTimeoutMillis: ワークロードに応じて調整
+        ```
+
+    ### 初期データ
+
+    マイグレーション実行時に以下のデータが作成されます：
+
+    - 管理者ユーザー
+
+        - 用途: システム管理、ユーザー管理、設定管理など
+        - アクセス権限: すべての機能にアクセス可能
+
+    - 一般ユーザー
+        - 用途: 通常のアプリケーション利用
+        - アクセス権限: 一般機能のみアクセス可能
+
+    初期データの生成は`prisma/seed.ts`で管理されており、以下のコマンドで手動実行することも可能です：
+
+    ```bash
+    # 開発環境での実行
+    yarn prisma:seed
+
+    # Dockerコンテナ内での実行
+    docker-compose exec backend yarn prisma:seed
+    ```
+
+    **注意**: 本番環境では、これらの初期ユーザーのパスワードを必ず変更してください。
 
 3. **パッケージの追加**
     - 新しいパッケージを追加する場合は、対応するサービスのコンテナ内で実行してください
@@ -202,6 +256,34 @@ docker-compose exec backend yarn add <package-name>
     ```bash
     docker-compose down
     docker-compose up --build
+    ```
+
+6. **MongoDB の問題**
+
+    - レプリカセットの初期化エラー
+
+    ```bash
+    # MongoDBのログを確認
+    docker-compose logs mongodb
+
+    # レプリカセットの状態確認
+    docker-compose exec mongodb mongosh --eval "rs.status()"
+    ```
+
+    - 認証エラー
+
+    ```bash
+    # 認証情報の確認
+    docker-compose exec mongodb mongosh --eval "db.auth('root', 'example')"
+    ```
+
+    - メモリ不足
+
+    ```bash
+    # メモリ使用量の確認
+    docker stats
+
+    # 必要に応じてwiredTigerCacheSizeGBを調整
     ```
 
 ## ライセンス
