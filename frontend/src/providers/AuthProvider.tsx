@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+"use client";
+
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { parseCookies, setCookie, destroyCookie } from "nookies";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -19,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -84,7 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error) {
             console.error("ログアウトエラー:", error);
-            // エラーが発生しても、ローカルのセッションはクリアする
             destroyCookie(null, "token");
             delete axios.defaults.headers.common["Authorization"];
             setUser(null);
