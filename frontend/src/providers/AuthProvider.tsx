@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const { token } = parseCookies();
         if (token) {
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            axios.defaults.headers.common.Authorization = `Bearer ${token}`;
             fetchUser();
         } else {
             setLoading(false);
@@ -39,9 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fetchUser = async () => {
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`);
-            setUser(response.data);
+            if (response.data.success) {
+                setUser(response.data.data);
+            } else {
+                throw new Error("ユーザー情報の取得に失敗しました");
+            }
         } catch (error) {
+            console.error("ユーザー情報取得エラー:", error);
             destroyCookie(null, "token");
+            delete axios.defaults.headers.common["Authorization"];
+            setUser(null);
         } finally {
             setLoading(false);
         }
@@ -78,12 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = async () => {
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`);
-            if (response.data.success) {
-                destroyCookie(null, "token");
-                delete axios.defaults.headers.common["Authorization"];
-                setUser(null);
-                router.replace("/login");
-            }
+            destroyCookie(null, "token");
+            delete axios.defaults.headers.common["Authorization"];
+            setUser(null);
+            router.replace("/login");
         } catch (error) {
             console.error("ログアウトエラー:", error);
             destroyCookie(null, "token");

@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../src/providers/AuthProvider";
 import { Box, Button, Container, TextField, Typography, Paper, Alert } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { parseCookies } from "cookies-next";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const { login } = useAuth();
+    const { login, user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (user) {
+            router.replace("/");
+        } else if (!loading && !user) {
+            const { token } = parseCookies();
+            if (!token) {
+                router.replace("/login");
+            }
+        }
+    }, [user, loading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,7 +54,7 @@ export default function Login() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            autoComplete="username"
+                            autoComplete="email"
                             autoFocus
                         />
                         <TextField

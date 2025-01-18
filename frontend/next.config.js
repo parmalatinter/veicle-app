@@ -17,8 +17,8 @@ const nextConfig = {
         // ホットリロードの最適化
         if (dev && !isServer) {
             config.watchOptions = {
-                poll: 1000,
-                aggregateTimeout: 300,
+                poll: true,
+                interval: 1000,
             };
         }
 

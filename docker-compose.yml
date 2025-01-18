@@ -10,14 +10,18 @@ services:
         volumes:
             - ./frontend:/app
             - /app/node_modules
+            - ./frontend/next.config.js:/app/next.config.js
         environment:
             - NEXT_PUBLIC_API_URL=http://localhost:5000
             - WATCHPACK_POLLING=true
             - CHOKIDAR_USEPOLLING=true
             - PORT=3000
+            - NODE_ENV=development
         depends_on:
             backend:
                 condition: service_healthy
+        tty: true
+        stdin_open: true
         extra_hosts:
             - "host.docker.internal:host-gateway"
         networks:
