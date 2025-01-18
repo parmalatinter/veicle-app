@@ -21,12 +21,15 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "db:setup": "yarn prisma:generate && yarn prisma:push && yarn prisma:seed"
+    "db:setup": "yarn prisma:generate && yarn prisma:push && yarn prisma:seed",
+    "db:reset": "prisma db push --force-reset && yarn prisma:seed"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/config": "^3.2.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/mongoose": "^10.0.0",
     "@nestjs/terminus": "^10.2.3",
@@ -34,7 +37,10 @@
     "bcrypt": "^5.1.1",
     "mongoose": "^8.1.0",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -59,7 +65,9 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3",
-    "prisma": "^5.10.0"
+    "prisma": "^5.10.0",
+    "@types/passport-jwt": "^4.0.0",
+    "@types/passport-local": "^1.0.38"
   },
   "jest": {
     "moduleFileExtensions": [

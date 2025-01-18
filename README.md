@@ -121,9 +121,33 @@ docker-compose exec backend yarn add <package-name>
           メールアドレス: user@example.com
           パスワード: password123
           権限: 一般ユーザー権限
+
+        テストユーザーアカウント:
+          メールアドレス: test@example.com
+          パスワード: password123
+          権限: テスト権限
         ```
 
-    - ⚠️ 注意: 本番環境では、必ずこれらの初期パスワードを変更してください
+        ⚠️ 注意: 本番環境では、必ずこれらの初期パスワードを変更してください
+
+    ## データベースの初期化
+
+    データベースの初期化とシードデータの投入は以下のコマンドで行えます：
+
+    ```bash
+    # データベースのリセットとシードデータの投入
+    docker-compose exec backend yarn db:reset
+
+    # シードデータのみ投入
+    docker-compose exec backend yarn prisma:seed
+    ```
+
+    これにより、以下の処理が実行されます：
+
+    1. データベースのスキーマ更新
+    2. 必要なコレクションの作成
+    3. インデックスの作成
+    4. テストユーザーの作成
 
     ## 環境設定
 
@@ -285,6 +309,71 @@ docker-compose exec backend yarn add <package-name>
 
     # 必要に応じてwiredTigerCacheSizeGBを調整
     ```
+
+## コンテナの管理
+
+### コンテナの個別リスタート
+
+特定のコンテナだけを再起動する場合：
+
+```bash
+# フロントエンドの再起動
+docker-compose restart frontend
+
+# バックエンドの再起動
+docker-compose restart backend
+
+# MongoDBの再起動
+docker-compose restart mongodb
+```
+
+### コンテナのログ確認
+
+各コンテナのログをリアルタイムで確認：
+
+```bash
+# フロントエンドのログ
+docker-compose logs -f frontend
+
+# バックエンドのログ
+docker-compose logs -f backend
+
+# MongoDBのログ
+docker-compose logs -f mongodb
+```
+
+### コンテナの再構築
+
+コンテナを完全に作り直す場合：
+
+```bash
+# すべてのコンテナを停止し、削除
+docker-compose down
+
+# キャッシュを使わずに再ビルド
+docker-compose build --no-cache
+
+# コンテナを起動
+docker-compose up
+
+# または、ビルドと起動を一度に行う
+docker-compose up --build
+```
+
+### データベースのリセット
+
+データベースを完全にリセットする場合：
+
+```bash
+# ボリュームを含めてコンテナを停止・削除
+docker-compose down -v
+
+# コンテナを再作成して起動
+docker-compose up --build
+
+# データベースの初期化とシードデータの投入
+docker-compose exec backend yarn db:reset
+```
 
 ## ライセンス
 

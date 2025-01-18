@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGODB_URI")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -15,71 +15,17 @@ model User {
   isAdmin   Boolean  @default(false)
   isActive  Boolean  @default(true)
 
-  // Google認証関連
-  googleUserId String? @unique
-
-  // Apple認証関連
-  appleUserId  String? @unique
-
-  // Google Play Store関連
-  googlePlaySubscriptions GooglePlaySubscription[]
-
-  // App Store関連
-  appStoreSubscriptions  AppStoreSubscription[]
-
-  // デバイス履歴
-  deviceHistory DeviceHistory[]
-
   lastLoginAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  sessions    session[] @relation("userSessions")
 }
 
-model GooglePlaySubscription {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  subscriptionId String
-  purchaseToken String
-  status        String   // 'active' | 'expired' | 'cancelled'
-  expiryDate    DateTime
-  productId     String
-  googleUserId  String
-  orderId       String
-  packageName   String
-  lastVerifiedAt DateTime
-  user          User     @relation(fields: [userId], references: [id])
-  userId        String   @db.ObjectId
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model AppStoreSubscription {
-  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
-  originalTransactionId String
-  latestReceiptData    String
-  status               String   // 'active' | 'expired' | 'cancelled'
-  expiryDate           DateTime
-  productId            String
-  appleUserId          String
-  environment          String   // 'Production' | 'Sandbox'
-  lastVerifiedAt       DateTime
-  user                 User     @relation(fields: [userId], references: [id])
-  userId               String   @db.ObjectId
-
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-}
-
-model DeviceHistory {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  deviceId    String
-  platform    String   // 'ios' | 'android'
-  deviceModel String?
-  osVersion   String?
-  lastLoginAt DateTime
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String   @db.ObjectId
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model session {
+  id        String   @id @default(uuid()) @map("_id")
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation("userSessions", fields: [userId], references: [id])
 } 

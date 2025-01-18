@@ -11,7 +11,7 @@ services:
             - ./frontend:/app
             - /app/node_modules
         environment:
-            - NEXT_PUBLIC_API_URL=http://host.docker.internal:5000
+            - NEXT_PUBLIC_API_URL=http://localhost:5000
             - WATCHPACK_POLLING=true
             - CHOKIDAR_USEPOLLING=true
             - PORT=3000
@@ -20,6 +20,8 @@ services:
                 condition: service_healthy
         extra_hosts:
             - "host.docker.internal:host-gateway"
+        networks:
+            - app-network
 
     backend:
         build:
@@ -31,93 +33,55 @@ services:
             - ./backend:/app
             - /app/node_modules
         environment:
-            - MONGODB_URI=mongodb://root:example@mongodb:27017/myapp?replicaSet=rs0&authSource=admin&directConnection=true&readPreference=primary
+            - DATABASE_URL=mongodb://root:example@mongodb:27017/vehicle-app?authSource=admin&directConnection=true&replicaSet=rs0
             - PORT=5000
             - FRONTEND_URL=http://localhost:3000
+        command: >
+            sh -c "yarn prisma generate &&
+                   yarn prisma:push &&
+                   yarn prisma:seed &&
+                   yarn start:dev"
         depends_on:
             mongodb:
                 condition: service_healthy
-            mongo-init:
-                condition: service_completed_successfully
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
             interval: 10s
             timeout: 5s
             retries: 5
-            start_period: 10s
+            start_period: 30s
+        networks:
+            - app-network
 
     mongodb:
-        image: mongo:latest
+        build:
+            context: ./mongodb
+            dockerfile: Dockerfile
         ports:
             - "27017:27017"
-        command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128", "--storageEngine", "wiredTiger"]
+        restart: always
         volumes:
             - mongodb_data:/data/db
+        command: mongod --replSet rs0 --keyFile /etc/mongo-keyfile --bind_ip_all
         healthcheck:
             test: >
-                mongosh 
-                --eval "
-                try {
-                  if (rs.status().ok) {
-                    quit(0);
-                  } else {
-                    quit(1);
-                  }
-                } catch(e) {
-                  rs.initiate({
-                    _id: 'rs0',
-                    members: [{ _id: 0, host: 'mongodb:27017', priority: 1 }],
-                    settings: { chainingAllowed: true }
-                  });
-                  quit(0);
-                }
-                "
+                echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}) }" | 
+                mongosh -u root -p example --authenticationDatabase admin
                 --quiet
             interval: 10s
-            timeout: 5s
+            timeout: 10s
             retries: 5
             start_period: 60s
         environment:
-            MONGODB_REPLICA_SET_NAME: rs0
-            MONGODB_INITDB_DATABASE: admin
-            MONGOD_STORAGE_ENGINE: wiredTiger
-            MONGOD_OPLOG_SIZE: "128"
-
-    mongo-init:
-        image: mongo:latest
-        restart: "no"
-        depends_on:
-            mongodb:
-                condition: service_healthy
-        command: >
-            mongosh 
-            --host mongodb:27017 
-            --eval '
-            let db;
-            try {
-                sleep(10000);  // レプリカセットの初期化を待機
-                db = db.getSiblingDB("admin");
-                while (!rs.isMaster().ismaster) {
-                  sleep(1000);
-                }
-                db.createUser({
-                    user: "root",
-                    pwd: "example",
-                    roles: [
-                        { role: "root", db: "admin" },
-                        { role: "dbOwner", db: "admin" }
-                    ]
-                });
-                db.auth("root", "example");
-            } catch (err) {
-                print("User already exists");
-                db = db.getSiblingDB("admin");
-                db.auth("root", "example");
-            }
-            '
-        environment:
-            MONGODB_REPLICA_SET_NAME: rs0
-            MONGODB_INITDB_DATABASE: admin
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+            MONGO_INITDB_DATABASE: vehicle-app
+        networks:
+            - app-network
 
 volumes:
     mongodb_data:
+
+networks:
+    app-network:
+        driver: bridge
