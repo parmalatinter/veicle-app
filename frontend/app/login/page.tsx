@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../src/providers/AuthProvider";
 import { Box, Button, Container, TextField, Typography, Paper, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { parseCookies } from "cookies-next";
+import { parseCookies } from "nookies";
 
 export default function Login() {
     const [email, setEmail] = useState("");

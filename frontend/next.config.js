@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    output: "standalone",
     env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     },
@@ -17,8 +16,9 @@ const nextConfig = {
         // ホットリロードの最適化
         if (dev && !isServer) {
             config.watchOptions = {
-                poll: true,
-                interval: 1000,
+                poll: 1000,
+                followSymlinks: false,
+                ignored: ["**/node_modules/**"],
             };
         }
 

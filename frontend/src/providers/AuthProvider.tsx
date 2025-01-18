@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`);
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`);
             destroyCookie(null, "token");
             delete axios.defaults.headers.common["Authorization"];
             setUser(null);

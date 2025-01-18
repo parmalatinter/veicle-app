@@ -10,16 +10,13 @@ services:
         volumes:
             - ./frontend:/app
             - /app/node_modules
-            - ./frontend/next.config.js:/app/next.config.js
         environment:
             - NEXT_PUBLIC_API_URL=http://localhost:5000
             - WATCHPACK_POLLING=true
             - CHOKIDAR_USEPOLLING=true
-            - PORT=3000
-            - NODE_ENV=development
-        depends_on:
-            backend:
-                condition: service_healthy
+            - NEXT_WEBPACK_USEPOLLING=1
+            - NEXT_TELEMETRY_DISABLED=1
+        command: yarn dev
         tty: true
         stdin_open: true
         extra_hosts:
