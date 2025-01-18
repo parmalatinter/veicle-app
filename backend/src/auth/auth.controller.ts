@@ -7,9 +7,11 @@ import {
   Headers,
   HttpException,
   HttpStatus,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -55,6 +57,31 @@ export class AuthController {
           error: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getProfile(@Request() req) {
+    try {
+      const user = await this.authService.findById(req.user.id);
+      return {
+        success: true,
+        data: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          isAdmin: user.isAdmin,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'ユーザー情報の取得に失敗しました',
+        },
+        HttpStatus.UNAUTHORIZED,
       );
     }
   }

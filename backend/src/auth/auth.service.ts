@@ -70,4 +70,12 @@ export class AuthService {
       where: { token },
     });
   }
+
+  async findById(id: string) {
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new UnauthorizedException('ユーザーが見つかりません');
+    }
+    return user;
+  }
 }
