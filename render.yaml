@@ -39,7 +39,7 @@ services:
 
 databases:
   - name: mongodb
-    type: mongodb
+    type: pserv
     plan: free
     envVars:
       - key: MONGO_INITDB_ROOT_USERNAME
