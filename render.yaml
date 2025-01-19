@@ -38,7 +38,7 @@ services:
       - 5000
 
   - name: mongodb
-    type: private_service
+    type: service
     env: docker
     dockerfilePath: ./mongodb/Dockerfile
     startCommand: mongod --replSet rs0 --keyFile /etc/mongo-keyfile --bind_ip_all
