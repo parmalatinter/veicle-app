@@ -17,8 +17,6 @@ services:
         value: 1
     dockerfilePath: ./frontend/Dockerfile
     autoDeploy: true
-    ports:
-      - 3000
 
   - name: backend
     type: web
@@ -34,8 +32,6 @@ services:
         value: http://localhost:3000
     dockerfilePath: ./backend/Dockerfile
     autoDeploy: true
-    ports:
-      - 5000
 
 databases:
   - name: mongodb
