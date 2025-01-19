@@ -1,0 +1,54 @@
+services:
+  - name: frontend
+    type: web
+    env: node
+    buildCommand: yarn install
+    startCommand: yarn dev
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: http://localhost:5000
+      - key: WATCHPACK_POLLING
+        value: true
+      - key: CHOKIDAR_USEPOLLING
+        value: true
+      - key: NEXT_WEBPACK_USEPOLLING
+        value: 1
+      - key: NEXT_TELEMETRY_DISABLED
+        value: 1
+    dockerfilePath: ./frontend/Dockerfile
+    autoDeploy: true
+    ports:
+      - 3000
+
+  - name: backend
+    type: web
+    env: node
+    buildCommand: yarn install
+    startCommand: sh -c "yarn prisma generate && yarn prisma:push && yarn prisma:seed && yarn start:dev"
+    envVars:
+      - key: DATABASE_URL
+        value: mongodb://root:example@mongodb:27017/vehicle-app?authSource=admin&directConnection=true&replicaSet=rs0
+      - key: PORT
+        value: 5000
+      - key: FRONTEND_URL
+        value: http://localhost:3000
+    dockerfilePath: ./backend/Dockerfile
+    autoDeploy: true
+    ports:
+      - 5000
+
+  - name: mongodb
+    type: private_service
+    env: docker
+    dockerfilePath: ./mongodb/Dockerfile
+    startCommand: mongod --replSet rs0 --keyFile /etc/mongo-keyfile --bind_ip_all
+    envVars:
+      - key: MONGO_INITDB_ROOT_USERNAME
+        value: root
+      - key: MONGO_INITDB_ROOT_PASSWORD
+        value: example
+      - key: MONGO_INITDB_DATABASE
+        value: vehicle-app
+    volumes:
+      - name: mongodb_data
+        path: /data/db
