@@ -37,11 +37,10 @@ services:
     ports:
       - 5000
 
+databases:
   - name: mongodb
-    type: service
-    env: docker
-    dockerfilePath: ./mongodb/Dockerfile
-    startCommand: mongod --replSet rs0 --keyFile /etc/mongo-keyfile --bind_ip_all
+    type: mongodb
+    plan: free
     envVars:
       - key: MONGO_INITDB_ROOT_USERNAME
         value: root
