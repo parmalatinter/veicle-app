@@ -1,9 +1,8 @@
 services:
   - name: frontend
     type: web
-    env: node
-    buildCommand: yarn install
-    startCommand: yarn dev
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: http://localhost:5000
@@ -15,14 +14,12 @@ services:
         value: 1
       - key: NEXT_TELEMETRY_DISABLED
         value: 1
-    dockerfilePath: ./frontend/Dockerfile
     autoDeploy: true
 
   - name: backend
     type: web
-    env: node
-    buildCommand: yarn install
-    startCommand: sh -c "yarn prisma generate && yarn prisma:push && yarn prisma:seed && yarn start:dev"
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
     envVars:
       - key: DATABASE_URL
         value: mongodb+srv://root:example@cluster0.my2m9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
@@ -30,5 +27,4 @@ services:
         value: 5000
       - key: FRONTEND_URL
         value: http://localhost:3000
-    dockerfilePath: ./backend/Dockerfile
     autoDeploy: true
