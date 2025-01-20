@@ -1,4 +1,4 @@
-services:
+すservices:
   - name: frontend
     type: web
     env: node
@@ -37,6 +37,10 @@ databases:
   - name: mongodb
     type: pserv
     plan: free
+    disk:
+      name: data
+      mountPath: /data/db
+      sizeGB: 10
     envVars:
       - key: MONGO_INITDB_ROOT_USERNAME
         value: root
@@ -44,6 +48,3 @@ databases:
         value: example
       - key: MONGO_INITDB_DATABASE
         value: vehicle-app
-    volumes:
-      - name: mongodb_data
-        path: /data/db
