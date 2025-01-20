@@ -53,6 +53,3 @@ services:
         value: example
       - key: MONGO_INITDB_DATABASE
         value: vehicle-app
-    volumes:
-      - name: mongodb_data
-        path: /data/db
