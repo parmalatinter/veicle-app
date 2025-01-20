@@ -2,6 +2,7 @@
     "name": "frontend",
     "version": "0.1.0",
     "private": true,
+    "license": "MIT",
     "scripts": {
         "dev": "WATCHPACK_POLLING=true next dev",
         "build": "next build",
@@ -29,5 +30,8 @@
         "eslint": "^9",
         "eslint-config-next": "15.1.5",
         "@eslint/eslintrc": "^3"
+    },
+    "engines": {
+        "node": ">=18.0.0"
     }
 }

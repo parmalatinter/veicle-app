@@ -1,30 +1,44 @@
 services:
-  - name: frontend
-    type: web
-    env: docker
-    dockerfilePath: ./frontend/Dockerfile
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        value: http://localhost:5000
-      - key: WATCHPACK_POLLING
-        value: true
-      - key: CHOKIDAR_USEPOLLING
-        value: true
-      - key: NEXT_WEBPACK_USEPOLLING
-        value: 1
-      - key: NEXT_TELEMETRY_DISABLED
-        value: 1
-    autoDeploy: true
+    - name: frontend
+      type: web
+      env: docker
+      dockerfilePath: ./frontend/Dockerfile.render
+      envVars:
+          - key: NEXT_PUBLIC_API_URL
+            value: https://backend-smuw.onrender.com
+          - key: NEXT_TELEMETRY_DISABLED
+            value: 1
+          - key: NODE_ENV
+            value: production
+      autoDeploy: true
 
-  - name: backend
-    type: web
-    env: docker
-    dockerfilePath: ./backend/Dockerfile
-    envVars:
-      - key: DATABASE_URL
-        value: mongodb+srv://root:example@cluster0.my2m9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-      - key: PORT
-        value: 5000
-      - key: FRONTEND_URL
-        value: http://localhost:3000
-    autoDeploy: true
+    - name: backend
+      type: web
+      env: docker
+      dockerfilePath: ./backend/Dockerfile.render
+      envVars:
+          - key: DATABASE_URL
+            value: ${DATABASE_URL}
+          - key: PORT
+            value: 5000
+          - key: FRONTEND_URL
+            value: https://frontend-cmlg.onrender.com
+          - key: NODE_ENV
+            value: production
+          - key: JWT_SECRET
+            value: ${JWT_SECRET}
+      autoDeploy: true
+      healthCheckPath: /health
+      buildCommand: yarn prisma generate
+
+    - type: web
+      name: vehicle-app-frontend
+      env: node
+      buildCommand: yarn install && yarn build
+      startCommand: yarn start
+      envVars:
+          - key: NODE_ENV
+            value: production
+          - key: NEXT_PUBLIC_API_URL
+            value: https://your-backend-url.onrender.com
+      autoDeploy: true
