@@ -2,6 +2,7 @@ services:
     - name: frontend
       type: web
       env: docker
+      rootDir: frontend
       dockerfilePath: ./frontend/Dockerfile.render
       envVars:
           - key: NEXT_PUBLIC_API_URL
@@ -15,6 +16,7 @@ services:
     - name: backend
       type: web
       env: docker
+      rootDir: backend
       dockerfilePath: ./backend/Dockerfile.render
       envVars:
           - key: DATABASE_URL
@@ -30,15 +32,3 @@ services:
       autoDeploy: true
       healthCheckPath: /health
       buildCommand: yarn prisma generate
-
-    - type: web
-      name: vehicle-app-frontend
-      env: node
-      buildCommand: yarn install && yarn build
-      startCommand: yarn start
-      envVars:
-          - key: NODE_ENV
-            value: production
-          - key: NEXT_PUBLIC_API_URL
-            value: https://your-backend-url.onrender.com
-      autoDeploy: true
