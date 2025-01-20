@@ -20,7 +20,7 @@ services:
       dockerfilePath: Dockerfile.render
       envVars:
           - key: DATABASE_URL
-            value: ${DATABASE_URL}
+            value: ${RENDER_DATABASE_URL}
           - key: PORT
             value: 5000
           - key: FRONTEND_URL
