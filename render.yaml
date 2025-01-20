@@ -1,4 +1,4 @@
-すservices:
+services:
   - name: frontend
     type: web
     env: node
