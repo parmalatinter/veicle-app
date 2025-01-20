@@ -9,6 +9,9 @@ RUN yarn install --production=false
 
 # Copy source code
 COPY . .
+RUN ls -la
+RUN mkdir -p src/app
+RUN mv app/* src/app/
 
 # Build application
 ENV NEXT_TELEMETRY_DISABLED=1
