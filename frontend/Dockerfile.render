@@ -14,8 +14,6 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_URL=https://backend-smuw.onrender.com
-RUN mkdir -p app
-RUN cp -r src/app/* app/
 RUN npx next build
 
 # Production stage
