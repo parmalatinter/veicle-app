@@ -1,4 +1,4 @@
-services:
+miservices:
   - name: frontend
     type: web
     env: node
@@ -38,8 +38,12 @@ services:
       - 5000
 
   - name: mongodb
-    type: private_service
+    type: pserv
     env: docker
+    disk:
+      name: data
+      mountPath: /data/db
+      sizeGB: 10
     dockerfilePath: ./mongodb/Dockerfile
     startCommand: mongod --replSet rs0 --keyFile /etc/mongo-keyfile --bind_ip_all
     envVars:
