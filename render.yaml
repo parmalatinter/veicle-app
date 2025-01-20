@@ -25,26 +25,10 @@ services:
     startCommand: sh -c "yarn prisma generate && yarn prisma:push && yarn prisma:seed && yarn start:dev"
     envVars:
       - key: DATABASE_URL
-        value: mongodb://root:example@mongodb:27017/vehicle-app?authSource=admin&directConnection=true&replicaSet=rs0
+        value: mongodb+srv://root:example@cluster0.my2m9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - key: PORT
         value: 5000
       - key: FRONTEND_URL
         value: http://localhost:3000
     dockerfilePath: ./backend/Dockerfile
     autoDeploy: true
-
-databases:
-  - name: mongodb
-    type: pserv
-    plan: free
-    disk:
-      name: data
-      mountPath: /data/db
-      sizeGB: 10
-    envVars:
-      - key: MONGO_INITDB_ROOT_USERNAME
-        value: root
-      - key: MONGO_INITDB_ROOT_PASSWORD
-        value: example
-      - key: MONGO_INITDB_DATABASE
-        value: vehicle-app
